@@ -139,6 +139,8 @@ public class Galaga extends PApplet implements ApplicationConstants {
 	 */
 	private Timer nextEnemyTimer;
 
+	private int waveCounter;
+
 	/**
 	 * Options for menus
 	 */
@@ -215,6 +217,7 @@ public class Galaga extends PApplet implements ApplicationConstants {
 		readyTimer = new Timer(this);
 		nextEnemyTimer = new Timer(this);
 		nextEnemyTimer.start(SPAWN_TIME);
+		waveCounter = 8;
 
 		// Initialize the draw time
 		lastDrawTime = millis();
@@ -279,8 +282,14 @@ public class Galaga extends PApplet implements ApplicationConstants {
 				b.update(elapsed);
 
 			if (!onDeck.isEmpty() && nextEnemyTimer.isDone()) {
-				nextEnemyTimer.start(SPAWN_TIME);
 				enemies.add(onDeck.remove(0));
+				waveCounter--;
+				if (waveCounter > 0)
+					nextEnemyTimer.start(SPAWN_TIME);
+				else {
+					nextEnemyTimer.start(WAVE_TIME);
+					waveCounter = 8;
+				}
 			}
 
 			// Move the enemies
@@ -520,7 +529,7 @@ public class Galaga extends PApplet implements ApplicationConstants {
 		while (eit.hasNext()) {
 			Enemy e = eit.next();
 			if (e.isDestroyed()) {
-				e.revive();
+				e.reset();
 				eit.remove();
 			}
 		}
@@ -1236,32 +1245,156 @@ public class Galaga extends PApplet implements ApplicationConstants {
 
 		onDeckPrototype = new ArrayList<Enemy>();
 
-		// Four bosses up top
-		for (int i = 0; i < NUM_BOSSES; i++)
-			onDeckPrototype.add(new Boss(WORLD_WIDTH / 1.5f, WORLD_HEIGHT / 2,
-					(i - NUM_BOSSES / 2) * ENEMY_BUFFER + ENEMY_BUFFER / 2,
-					BOSS_Y));
+		// Bees and butterflies dive from top
+		onDeckPrototype.add(new Bee(WORLD_WIDTH / 4, WORLD_HEIGHT * 1.2f,
+				ENEMY_BUFFER / 2, ROW_Y[3], Enemy.FlightPath.DOUBLE_CROSS));
+		onDeckPrototype.add(new Butterfly(-WORLD_WIDTH / 4,
+				WORLD_HEIGHT * 1.2f, -ENEMY_BUFFER / 2, ROW_Y[1],
+				Enemy.FlightPath.DOUBLE_CROSS));
 
-		// Sixteen butterflies in the middle
-		for (int i = 0; i < NUM_BUTTERFLIES; i++)
-			onDeckPrototype.add(new Butterfly(WORLD_WIDTH / 1.5f,
-					WORLD_HEIGHT / 2, (i - NUM_BUTTERFLIES / 2) * ENEMY_BUFFER
-							+ ENEMY_BUFFER / 2, BOSS_Y - ENEMY_BUFFER));
-		for (int i = 0; i < NUM_BUTTERFLIES; i++)
-			onDeckPrototype.add(new Butterfly(WORLD_WIDTH / 1.5f,
-					WORLD_HEIGHT / 2, (i - NUM_BUTTERFLIES / 2) * ENEMY_BUFFER
-							+ ENEMY_BUFFER / 2, BOSS_Y - 2 * ENEMY_BUFFER));
+		onDeckPrototype.add(new Bee(WORLD_WIDTH / 4, WORLD_HEIGHT * 1.2f,
+				ENEMY_BUFFER / 2, ROW_Y[4], Enemy.FlightPath.DOUBLE_CROSS));
+		onDeckPrototype.add(new Butterfly(-WORLD_WIDTH / 4,
+				WORLD_HEIGHT * 1.2f, -ENEMY_BUFFER / 2, ROW_Y[2],
+				Enemy.FlightPath.DOUBLE_CROSS));
 
-		// Twenty bees down under
-		for (int i = 0; i < NUM_BEES; i++)
-			onDeckPrototype.add(new Bee(WORLD_WIDTH, WORLD_HEIGHT / 2,
-					(i - NUM_BEES / 2) * ENEMY_BUFFER + ENEMY_BUFFER / 2,
-					BOSS_Y - 3 * ENEMY_BUFFER));
-		for (int i = 0; i < NUM_BEES; i++)
-			onDeckPrototype.add(new Bee(WORLD_WIDTH, WORLD_HEIGHT / 2,
-					(i - NUM_BEES / 2) * ENEMY_BUFFER + ENEMY_BUFFER / 2,
-					BOSS_Y - 4 * ENEMY_BUFFER));
+		onDeckPrototype.add(new Bee(WORLD_WIDTH / 4, WORLD_HEIGHT * 1.2f,
+				-ENEMY_BUFFER / 2, ROW_Y[3], Enemy.FlightPath.DOUBLE_CROSS));
+		onDeckPrototype.add(new Butterfly(-WORLD_WIDTH / 4,
+				WORLD_HEIGHT * 1.2f, ENEMY_BUFFER / 2, ROW_Y[1],
+				Enemy.FlightPath.DOUBLE_CROSS));
 
+		onDeckPrototype.add(new Bee(WORLD_WIDTH / 4, WORLD_HEIGHT * 1.2f,
+				-ENEMY_BUFFER / 2, ROW_Y[4], Enemy.FlightPath.DOUBLE_CROSS));
+		onDeckPrototype.add(new Butterfly(-WORLD_WIDTH / 4,
+				WORLD_HEIGHT * 1.2f, ENEMY_BUFFER / 2, ROW_Y[2],
+				Enemy.FlightPath.DOUBLE_CROSS));
+
+		// Bosses and Butterflies loop up from the bottom left
+		onDeckPrototype.add(new Boss(-WORLD_WIDTH * 1.2f, 0, -3 * ENEMY_BUFFER
+				/ 2, ROW_Y[0], Enemy.FlightPath.BOTTOM_LOOP));
+
+		onDeckPrototype.add(new Butterfly(-WORLD_WIDTH * 1.2f, 0, -3
+				* ENEMY_BUFFER / 2, ROW_Y[1], Enemy.FlightPath.BOTTOM_LOOP));
+
+		onDeckPrototype.add(new Boss(-WORLD_WIDTH * 1.2f, 0, -ENEMY_BUFFER / 2,
+				ROW_Y[0], Enemy.FlightPath.BOTTOM_LOOP));
+
+		onDeckPrototype.add(new Butterfly(-WORLD_WIDTH * 1.2f, 0, -3
+				* ENEMY_BUFFER / 2, ROW_Y[2], Enemy.FlightPath.BOTTOM_LOOP));
+
+		onDeckPrototype.add(new Boss(-WORLD_WIDTH * 1.2f, 0, ENEMY_BUFFER / 2,
+				ROW_Y[0], Enemy.FlightPath.BOTTOM_LOOP));
+
+		onDeckPrototype.add(new Butterfly(-WORLD_WIDTH * 1.2f, 0,
+				3 * ENEMY_BUFFER / 2, ROW_Y[1], Enemy.FlightPath.BOTTOM_LOOP));
+
+		onDeckPrototype.add(new Boss(-WORLD_WIDTH * 1.2f, 0,
+				3 * ENEMY_BUFFER / 2, ROW_Y[0], Enemy.FlightPath.BOTTOM_LOOP));
+
+		onDeckPrototype.add(new Butterfly(-WORLD_WIDTH * 1.2f, 0,
+				3 * ENEMY_BUFFER / 2, ROW_Y[2], Enemy.FlightPath.BOTTOM_LOOP));
+
+		// Butterflies loop up from the bottom right
+		onDeckPrototype.add(new Butterfly(WORLD_WIDTH * 1.2f, 0,
+				7 * ENEMY_BUFFER / 2, ROW_Y[1], Enemy.FlightPath.BOTTOM_LOOP));
+
+		onDeckPrototype.add(new Butterfly(WORLD_WIDTH * 1.2f, 0,
+				5 * ENEMY_BUFFER / 2, ROW_Y[1], Enemy.FlightPath.BOTTOM_LOOP));
+
+		onDeckPrototype.add(new Butterfly(WORLD_WIDTH * 1.2f, 0,
+				7 * ENEMY_BUFFER / 2, ROW_Y[2], Enemy.FlightPath.BOTTOM_LOOP));
+
+		onDeckPrototype.add(new Butterfly(WORLD_WIDTH * 1.2f, 0,
+				5 * ENEMY_BUFFER / 2, ROW_Y[2], Enemy.FlightPath.BOTTOM_LOOP));
+
+		onDeckPrototype.add(new Butterfly(WORLD_WIDTH * 1.2f, 0, -7
+				* ENEMY_BUFFER / 2, ROW_Y[1], Enemy.FlightPath.BOTTOM_LOOP));
+
+		onDeckPrototype.add(new Butterfly(WORLD_WIDTH * 1.2f, 0, -5
+				* ENEMY_BUFFER / 2, ROW_Y[1], Enemy.FlightPath.BOTTOM_LOOP));
+
+		onDeckPrototype.add(new Butterfly(WORLD_WIDTH * 1.2f, 0, -7
+				* ENEMY_BUFFER / 2, ROW_Y[2], Enemy.FlightPath.BOTTOM_LOOP));
+
+		onDeckPrototype.add(new Butterfly(WORLD_WIDTH * 1.2f, 0, -5
+				* ENEMY_BUFFER / 2, ROW_Y[2], Enemy.FlightPath.BOTTOM_LOOP));
+
+		// Bees loop down from the top right
+		onDeckPrototype.add(new Bee(WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 1.2f,
+				5 * ENEMY_BUFFER / 2, ROW_Y[3], Enemy.FlightPath.TOP_LOOP));
+
+		onDeckPrototype.add(new Bee(WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 1.2f,
+				3 * ENEMY_BUFFER / 2, ROW_Y[3], Enemy.FlightPath.TOP_LOOP));
+
+		onDeckPrototype.add(new Bee(WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 1.2f,
+				5 * ENEMY_BUFFER / 2, ROW_Y[4], Enemy.FlightPath.TOP_LOOP));
+
+		onDeckPrototype.add(new Bee(WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 1.2f,
+				3 * ENEMY_BUFFER / 2, ROW_Y[4], Enemy.FlightPath.TOP_LOOP));
+
+		onDeckPrototype.add(new Bee(WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 1.2f, -5
+				* ENEMY_BUFFER / 2, ROW_Y[3], Enemy.FlightPath.TOP_LOOP));
+
+		onDeckPrototype.add(new Bee(WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 1.2f, -3
+				* ENEMY_BUFFER / 2, ROW_Y[3], Enemy.FlightPath.TOP_LOOP));
+
+		onDeckPrototype.add(new Bee(WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 1.2f, -5
+				* ENEMY_BUFFER / 2, ROW_Y[4], Enemy.FlightPath.TOP_LOOP));
+
+		onDeckPrototype.add(new Bee(WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 1.2f, -3
+				* ENEMY_BUFFER / 2, ROW_Y[4], Enemy.FlightPath.TOP_LOOP));
+
+		// Bees loop down from the top left
+		onDeckPrototype.add(new Bee(-WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 1.2f,
+				9 * ENEMY_BUFFER / 2, ROW_Y[3], Enemy.FlightPath.TOP_LOOP));
+
+		onDeckPrototype.add(new Bee(-WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 1.2f,
+				7 * ENEMY_BUFFER / 2, ROW_Y[3], Enemy.FlightPath.TOP_LOOP));
+
+		onDeckPrototype.add(new Bee(-WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 1.2f,
+				9 * ENEMY_BUFFER / 2, ROW_Y[4], Enemy.FlightPath.TOP_LOOP));
+
+		onDeckPrototype.add(new Bee(-WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 1.2f,
+				7 * ENEMY_BUFFER / 2, ROW_Y[4], Enemy.FlightPath.TOP_LOOP));
+
+		onDeckPrototype.add(new Bee(-WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 1.2f,
+				-9 * ENEMY_BUFFER / 2, ROW_Y[3], Enemy.FlightPath.TOP_LOOP));
+
+		onDeckPrototype.add(new Bee(-WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 1.2f,
+				-7 * ENEMY_BUFFER / 2, ROW_Y[3], Enemy.FlightPath.TOP_LOOP));
+
+		onDeckPrototype.add(new Bee(-WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 1.2f,
+				-9 * ENEMY_BUFFER / 2, ROW_Y[4], Enemy.FlightPath.TOP_LOOP));
+
+		onDeckPrototype.add(new Bee(-WORLD_WIDTH * 0.5f, WORLD_HEIGHT * 1.2f,
+				-7 * ENEMY_BUFFER / 2, ROW_Y[4], Enemy.FlightPath.TOP_LOOP));
+
+		/*
+		 * // Four bosses up top for (int i = 0; i < NUM_BOSSES; i++)
+		 * onDeckPrototype.add(new Boss(WORLD_WIDTH / 1.5f, WORLD_HEIGHT / 2, (i
+		 * - NUM_BOSSES / 2) * ENEMY_BUFFER + ENEMY_BUFFER / 2, BOSS_Y,
+		 * Enemy.FlightPath.DOUBLE_CROSS));
+		 * 
+		 * // Sixteen butterflies in the middle for (int i = 0; i <
+		 * NUM_BUTTERFLIES; i++) onDeckPrototype .add(new Butterfly(WORLD_WIDTH
+		 * / 4, WORLD_HEIGHT, (i - NUM_BUTTERFLIES / 2) * ENEMY_BUFFER +
+		 * ENEMY_BUFFER / 2, BOSS_Y - ENEMY_BUFFER,
+		 * Enemy.FlightPath.TOP_LOOP_LEFT));
+		 * 
+		 * for (int i = NUM_BUTTERFLIES; i >= 0; i--) onDeckPrototype .add(new
+		 * Butterfly(-WORLD_WIDTH / 4, WORLD_HEIGHT, (i - NUM_BUTTERFLIES / 2) *
+		 * ENEMY_BUFFER + ENEMY_BUFFER / 2, BOSS_Y - 2 ENEMY_BUFFER,
+		 * Enemy.FlightPath.TOP_LOOP_LEFT));
+		 * 
+		 * // Twenty bees down under for (int i = 0; i < NUM_BEES; i++)
+		 * onDeckPrototype.add(new Bee(-WORLD_WIDTH / 4, WORLD_HEIGHT * 1.2f, (i
+		 * - NUM_BEES / 2) * ENEMY_BUFFER + ENEMY_BUFFER / 2, BOSS_Y - 3 *
+		 * ENEMY_BUFFER, Enemy.FlightPath.TOP_LOOP_LEFT)); for (int i =
+		 * NUM_BEES; i >= 0; i--) onDeckPrototype.add(new Bee(WORLD_WIDTH / 4,
+		 * WORLD_HEIGHT * 1.2f, (i - NUM_BEES / 2) * ENEMY_BUFFER + ENEMY_BUFFER
+		 * / 2, BOSS_Y - 4 * ENEMY_BUFFER, Enemy.FlightPath.TOP_LOOP_LEFT));
+		 */
 	}
 
 	/**
@@ -1315,34 +1448,8 @@ public class Galaga extends PApplet implements ApplicationConstants {
 			enemies = new ArrayList<Enemy>();
 
 			// Array list to hold enemies
-			onDeck = new ArrayList<Enemy>();
+			onDeck = new ArrayList<Enemy>(onDeckPrototype);
 			enemies = new ArrayList<Enemy>();
-
-			// Four bosses up top
-			for (int i = 0; i < NUM_BOSSES; i++)
-				onDeck.add(new Boss(WORLD_WIDTH / 1.5f, WORLD_HEIGHT / 2,
-						(i - NUM_BOSSES / 2) * ENEMY_BUFFER + ENEMY_BUFFER / 2,
-						BOSS_Y));
-
-			// Sixteen butterflies in the middle
-			for (int i = 0; i < NUM_BUTTERFLIES; i++)
-				onDeck.add(new Butterfly(WORLD_WIDTH / 1.5f, WORLD_HEIGHT / 2,
-						(i - NUM_BUTTERFLIES / 2) * ENEMY_BUFFER + ENEMY_BUFFER
-								/ 2, BOSS_Y - ENEMY_BUFFER));
-			for (int i = 0; i < NUM_BUTTERFLIES; i++)
-				onDeck.add(new Butterfly(WORLD_WIDTH / 1.5f, WORLD_HEIGHT / 2,
-						(i - NUM_BUTTERFLIES / 2) * ENEMY_BUFFER + ENEMY_BUFFER
-								/ 2, BOSS_Y - 2 * ENEMY_BUFFER));
-
-			// Twenty bees down under
-			for (int i = 0; i < NUM_BEES; i++)
-				onDeck.add(new Bee(WORLD_WIDTH, WORLD_HEIGHT / 2,
-						(i - NUM_BEES / 2) * ENEMY_BUFFER + ENEMY_BUFFER / 2,
-						BOSS_Y - 3 * ENEMY_BUFFER));
-			for (int i = 0; i < NUM_BEES; i++)
-				onDeck.add(new Bee(WORLD_WIDTH, WORLD_HEIGHT / 2,
-						(i - NUM_BEES / 2) * ENEMY_BUFFER + ENEMY_BUFFER / 2,
-						BOSS_Y - 4 * ENEMY_BUFFER));
 
 			gameState = GameState.MAIN_MENU;
 		}

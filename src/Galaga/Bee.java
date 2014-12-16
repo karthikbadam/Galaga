@@ -1,5 +1,6 @@
 package Galaga;
 
+import Galaga.Enemy.FlightPath;
 import processing.core.*;
 
 /**
@@ -17,8 +18,8 @@ public class Bee extends Enemy {
 	 * @param y
 	 *            y coordinate
 	 */
-	public Bee(float x, float y) {
-		super(x, y);
+	public Bee(float x, float y, FlightPath entryPath) {
+		super(x, y, entryPath);
 		formationScore = 50;
 		attackingScore = 100;
 	}
@@ -35,8 +36,8 @@ public class Bee extends Enemy {
 	 * @param goalY
 	 *            the starting destination of the bee
 	 */
-	public Bee(float x, float y, float goalX, float goalY) {
-		super(x, y, goalX, goalY);
+	public Bee(float x, float y, float goalX, float goalY, FlightPath entryPath) {
+		super(x, y, goalX, goalY, entryPath);
 		formationScore = 50;
 		attackingScore = 100;
 	}

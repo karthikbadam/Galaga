@@ -28,8 +28,8 @@ public class Boss extends Enemy {
 	 * @param y
 	 *            y coordinate
 	 */
-	public Boss(float x, float y) {
-		super(x, y);
+	public Boss(float x, float y, FlightPath entryPath) {
+		super(x, y, entryPath);
 		hitOnce = false;
 		formationScore = 130;
 		attackingScore = 400;
@@ -47,8 +47,8 @@ public class Boss extends Enemy {
 	 * @param goalY
 	 *            the starting destination
 	 */
-	public Boss(float x, float y, float goalX, float goalY) {
-		super(x, y, goalX, goalY);
+	public Boss(float x, float y, float goalX, float goalY, FlightPath entryPath) {
+		super(x, y, goalX, goalY, entryPath);
 		hitOnce = false;
 		formationScore = 130;
 		attackingScore = 400;
@@ -111,14 +111,14 @@ public class Boss extends Enemy {
 		}
 	}
 
-	public void revive() {
-		super.revive();
+	public void reset() {
+		super.reset();
 		hitOnce = false;
 	}
 
 	@Override
 	public Enemy clone() {
-		Boss temp = new Boss(x, y);
+		Boss temp = new Boss(x, y, entryPath);
 		if (hitOnce)
 			temp.hit();
 		if (hit)

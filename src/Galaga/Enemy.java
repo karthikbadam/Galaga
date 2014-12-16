@@ -20,6 +20,8 @@ public abstract class Enemy implements ApplicationConstants {
 	 */
 	protected boolean hit;
 
+	protected boolean scored;
+
 	/**
 	 * Coordinates in the world
 	 */
@@ -34,6 +36,12 @@ public abstract class Enemy implements ApplicationConstants {
 	 * The destination coordinates
 	 */
 	protected float goalX, goalY;
+
+	protected float homeX, homeY;
+
+	protected float spawnX, spawnY;
+
+	protected FlightPath entryPath;
 
 	/**
 	 * Boolean to keep track of whether the goal has been reached
@@ -53,7 +61,7 @@ public abstract class Enemy implements ApplicationConstants {
 	/**
 	 * Time since the beginning of the path
 	 */
-	private float ut;
+	protected float ut;
 
 	/**
 	 * X and Y components of velocity
@@ -78,7 +86,7 @@ public abstract class Enemy implements ApplicationConstants {
 	/**
 	 * Explosion sprites to draw
 	 */
-	private PImage[] eSprites;
+	protected PImage[] eSprites;
 
 	/**
 	 * The current state in the animation cycle
@@ -103,23 +111,30 @@ public abstract class Enemy implements ApplicationConstants {
 	 * @param y
 	 *            y coordinate
 	 */
-	public Enemy(float x, float y) {
+	public Enemy(float x, float y, FlightPath entryPath) {
 		this.x = x;
 		this.y = y;
-		this.theta = 0;
 		this.goalX = x;
 		this.goalY = y;
+		this.homeX = x;
+		this.homeY = y;
+		this.spawnX = x;
+		this.spawnY = y;
+		this.theta = 0;
 		this.vx = 0;
 		this.vy = 0;
 		this.r = 7 * PIXEL_WIDTH;
 
 		state = EnemyState.ASSUME_POSITION;
 
-		startPath();
-		calculateA();
-		followPath();
+		this.entryPath = entryPath;
+		createPath();
+		followCubicPath();
 
 		destroyed = false;
+		hit = false;
+		scored = false;
+
 		goalReached = false;
 		animationTimer = (float) Math.random() * ANIMATION_FRAME;
 		animationState = AnimationState.random();
@@ -138,23 +153,74 @@ public abstract class Enemy implements ApplicationConstants {
 	 * @param goalY
 	 *            starting y destination
 	 */
-	public Enemy(float x, float y, float goalX, float goalY) {
+	public Enemy(float x, float y, float goalX, float goalY,
+			FlightPath entryPath) {
 		this.x = x;
 		this.y = y;
-		this.theta = 0;
 		this.goalX = goalX;
 		this.goalY = goalY;
+		this.homeX = goalX;
+		this.homeY = goalY;
+		this.spawnX = x;
+		this.spawnY = y;
+		this.theta = 0;
 		this.vx = 0;
 		this.vy = 0;
 		this.r = 7 * PIXEL_WIDTH;
 
 		state = EnemyState.ASSUME_POSITION;
 
-		startPath();
-		calculateA();
-		followPath();
+		this.entryPath = entryPath;
+		createPath();
+		followCubicPath();
 
 		destroyed = false;
+		hit = false;
+		scored = false;
+
+		goalReached = false;
+		animationTimer = (float) Math.random() * ANIMATION_FRAME;
+		animationState = AnimationState.random();
+		createSprite();
+	}
+
+	/**
+	 * Constructor initializes variables
+	 * 
+	 * @param x
+	 *            x coordinate
+	 * @param y
+	 *            y coordinate
+	 * @param goalX
+	 *            starting x destination
+	 * @param goalY
+	 *            starting y destination
+	 */
+	public Enemy(float x, float y, float goalX, float goalY, float homeX,
+			float homeY, FlightPath entryPath) {
+		this.x = x;
+		this.y = y;
+		this.goalX = goalX;
+		this.goalY = goalY;
+		this.homeX = homeX;
+		this.homeY = homeY;
+		this.spawnX = x;
+		this.spawnY = y;
+		this.theta = 0;
+		this.vx = 0;
+		this.vy = 0;
+		this.r = 7 * PIXEL_WIDTH;
+
+		state = EnemyState.ASSUME_POSITION;
+
+		this.entryPath = entryPath;
+		createPath();
+		followCubicPath();
+
+		destroyed = false;
+		hit = false;
+		scored = false;
+
 		goalReached = false;
 		animationTimer = (float) Math.random() * ANIMATION_FRAME;
 		animationState = AnimationState.random();
@@ -186,14 +252,43 @@ public abstract class Enemy implements ApplicationConstants {
 			}
 		}
 
-		// if (!goalReached)
-		// assume(elapsed);
-
-		// x += vx;
-		// y += vy;
-
 		ut += elapsed * 0.001;
-		followPath();
+
+		if (!hit) {
+			switch (state) {
+			case ASSUME_POSITION:
+				if (goalReached) {
+					state = EnemyState.FORMATION_OUT;
+					Galaga.syncFormation(this);
+				}
+				followPath();
+				break;
+			case DIVE:
+				if (goalReached) {
+					state = EnemyState.FORMATION_OUT;
+					Galaga.syncFormation(this);
+				}
+				followPath();
+				break;
+			case FORMATION_OUT:
+				if (goalReached) {
+					state = EnemyState.FORMATION_IN;
+					createPath();
+				}
+				followPath();
+				break;
+			case FORMATION_IN:
+				if (goalReached) {
+					state = EnemyState.FORMATION_OUT;
+					createPath();
+				}
+				followPath();
+				break;
+			default:
+				break;
+
+			}
+		}
 
 	}
 
@@ -297,13 +392,47 @@ public abstract class Enemy implements ApplicationConstants {
 		destroyed = true;
 	}
 
+	public void reset() {
+		destroyed = false;
+		hit = false;
+		scored = false;
+
+		this.x = spawnX;
+		this.y = spawnY;
+		this.theta = 0;
+		this.vx = 0;
+		this.vy = 0;
+
+		goalReached = false;
+		state = EnemyState.ASSUME_POSITION;
+		createPath();
+
+		animationTimer = (float) Math.random() * ANIMATION_FRAME;
+		animationState = AnimationState.random();
+	}
+
+	public void dive() {
+		state = EnemyState.DIVE;
+		createPath();
+	}
+
+	public EnemyState getState() {
+		return state;
+	}
+
 	/**
 	 * Return a bullet shot from the fighter
 	 * 
 	 * @return bullet shot from the fighter
 	 */
 	public Bullet shoot() {
-		return new EnemyBullet(x, y, theta + PConstants.PI / 2);
+		float phi = theta;
+		if (state.inFormation())
+			phi -= PConstants.PI / 2;
+		else
+			phi += PConstants.PI / 2;
+
+		return new EnemyBullet(x, y, phi);
 	}
 
 	/**
@@ -337,56 +466,164 @@ public abstract class Enemy implements ApplicationConstants {
 	 */
 	public int getScore() {
 		int score = 0;
-		switch (state) {
-		case ASSUME_POSITION:
-		case FORMATION:
-			score = formationScore;
-			break;
-		case DIVE:
-		case RETURN:
-			score = attackingScore;
-			break;
-		default:
-			break;
-
+		if (!scored) {
+			switch (state) {
+			case ASSUME_POSITION:
+			case FORMATION_IN:
+			case FORMATION_OUT:
+				score = formationScore;
+				break;
+			case DIVE:
+				score = attackingScore;
+				break;
+			default:
+				break;
+			}
+			scored = true;
 		}
 
-		// The enemy is not worth anything after being hit once
-		formationScore = attackingScore = 0;
-
 		return score;
+	}
+
+	public void syncFormation(Enemy prototype) {
+		this.state = prototype.state;
+		float timeToGoal = Math.min(FORMATION_CYCLE_TIME - prototype.ut,
+				FORMATION_CYCLE_TIME);
+		createFormationPath(timeToGoal);
 	}
 
 	/**
 	 * Initializes the waypoints for the path
 	 */
-	public void startPath() {
+	public void createPath() {
 		ut = 0;
 
-		// TODO: Set waypoints depending on state
 		switch (state) {
 		case ASSUME_POSITION:
-			float[][] newpoints = { { 0.1f, 0.1f, 0.f }, { 0.4f, 0.2f, 1.5f },
-					{ -0.4f, 0.2f, 3f }, { goalX, goalY - 0.1f, 4.5f },
-					{ goalX, goalY, 5f } };
-			waypoints = newpoints;
+			createAssumePositionPath();
+			break;
+
+		case DIVE:
+			createDivePath();
+			break;
+
+		case FORMATION_IN:
+			goalX = homeX * 0.8f;
+			goalY = (homeY - BOSS_Y) * 0.8f + BOSS_Y;
+			float[][] newpoints3 = { { x, y, 0 },
+					{ goalX, goalY, FORMATION_CYCLE_TIME } };
+			waypoints = newpoints3;
+			break;
+		case FORMATION_OUT:
+			goalX = homeX * 1.25f;
+			goalY = (homeY - BOSS_Y) * 1.25f + BOSS_Y;
+			float[][] newpoints4 = { { x, y, 0 },
+					{ goalX, goalY, FORMATION_CYCLE_TIME } };
+			waypoints = newpoints4;
+			break;
+
+		default:
+			break;
+		}
+
+		calculateA();
+		goalReached = false;
+	}
+
+	protected void createAssumePositionPath() {
+		waypoints = entryPath.getPoints(x, y, goalX, goalY);
+	}
+
+	protected void createDivePath() {
+		goalX = Fighter.instance().getX();
+		goalY = Fighter.instance().getY();
+		waypoints = FlightPath.DIVE.getPoints(x, y, goalX, goalY);
+	}
+
+	private void createFormationPath(float timeToGoal) {
+		ut = 0;
+
+		if (state == EnemyState.FORMATION_IN) {
+			goalX = homeX * 0.8f;
+			goalY = (homeY - BOSS_Y) * 0.8f + BOSS_Y;
+			float[][] newpoints3 = { { x, y, 0 }, { goalX, goalY, timeToGoal } };
+			waypoints = newpoints3;
+		} else if (state == EnemyState.FORMATION_OUT) {
+			goalX = homeX * 1.25f;
+			goalY = (homeY - BOSS_Y) * 1.25f + BOSS_Y;
+			float[][] newpoints4 = { { x, y, 0 }, { goalX, goalY, timeToGoal } };
+			waypoints = newpoints4;
+		}
+
+		calculateA();
+		goalReached = false;
+	}
+
+	private void followPath() {
+
+		switch (state) {
+		case ASSUME_POSITION:
+			followCubicPath();
 			break;
 		case DIVE:
+			followCubicPath();
 			break;
-		case FORMATION:
-			break;
-		case RETURN:
+		case FORMATION_IN:
+		case FORMATION_OUT:
+			followLinearPath();
+			this.theta = 0;
 			break;
 		default:
 			break;
+
+		}
+	}
+
+	private void followLinearPath() {
+		final int NB_WAY_PTS = waypoints.length;
+
+		if (waypoints[waypoints.length - 1][2] <= ut) {
+			goalReached = true;
+		}
+
+		// which interval do we fall into?
+		for (int i = 1; i < NB_WAY_PTS; i++) {
+			if (waypoints[i][2] >= ut) {
+				// we fall in the interval [i-1, i]
+
+				// Time along the interval
+				float tau = (ut - waypoints[i - 1][2])
+						/ (waypoints[i][2] - waypoints[i - 1][2]);
+
+				// Set x and y
+				float newx = waypoints[i - 1][0] + tau
+						* (waypoints[i][0] - waypoints[i - 1][0]);
+				float newy = waypoints[i - 1][1] + tau
+						* (waypoints[i][1] - waypoints[i - 1][1]);
+
+				float dx = x - newx;
+				float dy = y - newy;
+
+				// Set angle
+				this.theta = PApplet.atan2(dy, dx) + PConstants.PI / 2;
+
+				this.x = newx;
+				this.y = newy;
+
+				break;
+			}
 		}
 	}
 
 	/**
 	 * Move according to the the cubic interpolation
 	 */
-	private void followPath() {
+	private void followCubicPath() {
 		final int NB_WAY_PTS = waypoints.length;
+
+		if (waypoints[waypoints.length - 1][2] <= ut) {
+			goalReached = true;
+		}
 
 		// which interval do we fall into?
 		for (int i = 1; i < NB_WAY_PTS; i++) {
@@ -469,8 +706,8 @@ public abstract class Enemy implements ApplicationConstants {
 		b[0][1] = waypoints[0][1]; // y0
 
 		// Initial speed
-		b[1][0] = 1; // vx0
-		b[1][1] = 2; // vy0
+		b[1][0] = 0; // vx0
+		b[1][1] = 0; // vy0
 
 		// End location
 		b[4 * NB_SEGMENTS - 2][0] = waypoints[NB_WAY_PTS - 1][0];
@@ -560,6 +797,70 @@ public abstract class Enemy implements ApplicationConstants {
 	 * @author Christopher Glasz
 	 */
 	protected enum EnemyState {
-		ASSUME_POSITION, FORMATION, DIVE, RETURN;
+		ASSUME_POSITION, FORMATION_IN {
+			@Override
+			public boolean inFormation() {
+				return true;
+			}
+		},
+		FORMATION_OUT {
+			@Override
+			public boolean inFormation() {
+				return true;
+			}
+		},
+		DIVE;
+
+		/**
+		 * Returns true if the state is an explosion state
+		 * 
+		 * @return true if the state is an explosion state
+		 */
+		public boolean inFormation() {
+			return false;
+		}
+	}
+
+	protected enum FlightPath {
+		DOUBLE_CROSS {
+			public float[][] getPoints(float x, float y, float goalX,
+					float goalY) {
+				return new float[][] { { x, y, 0 }, { 0, WORLD_HEIGHT / 2, 1 },
+						{ -x, WORLD_HEIGHT / 3, 1.5f },
+						{ -x, WORLD_HEIGHT / 2, 2 }, { goalX, goalY, 3 } };
+			}
+		},
+
+		BOTTOM_LOOP {
+			public float[][] getPoints(float x, float y, float goalX,
+					float goalY) {
+				return new float[][] { { x, y, 0 },
+						{ x / 10, WORLD_HEIGHT / 3, 1 },
+						{ x / 6, 2 * WORLD_HEIGHT / 3, 1.5f },
+						{ x / 7, WORLD_HEIGHT / 3, 2 }, { goalX, goalY, 3 } };
+			}
+		},
+
+		TOP_LOOP {
+			public float[][] getPoints(float x, float y, float goalX,
+					float goalY) {
+				return new float[][] { { x, y, 0 },
+						{ x / 2, WORLD_HEIGHT / 3, 1 },
+						{ 0, WORLD_HEIGHT / 3, 1.5f }, { goalX, goalY, 2 } };
+			}
+		},
+
+		DIVE {
+			public float[][] getPoints(float x, float y, float goalX,
+					float goalY) {
+				return new float[][] { { x, y, 0 },
+						{ x + 0.05f, y + 0.05f, 0.5f }, { goalX, goalY, 2 },
+						{ goalX, 0, 3 }, { x, y, 4 } };
+			}
+		};
+
+		public float[][] getPoints(float x, float y, float goalX, float goalY) {
+			return new float[][] { { 0, 1 }, { 1, 0 } };
+		}
 	}
 }

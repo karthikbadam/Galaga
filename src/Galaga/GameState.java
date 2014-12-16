@@ -6,43 +6,52 @@ package Galaga;
  * @author Christopher Glasz
  */
 public enum GameState {
-	
+
 	/**
 	 * Main menu
 	 */
-	MAIN_MENU, 
-	
+	MAIN_MENU,
+
 	/**
-	 * Playing the game
+	 * About to start the next level
 	 */
-	PLAYING {
+	NEXT_LEVEL {
 		@Override
 		public boolean playing() {
 			return true;
 		}
-	}, 
-	
+	},
+
+	/**
+	 * Enemies are assuming their positions
+	 */
 	ASSUMING_POSITIONS {
 		@Override
 		public boolean playing() {
 			return true;
 		}
 	},
-	
+
+	/**
+	 * Enemies are in formation
+	 */
 	IN_FORMATION {
 		@Override
 		public boolean playing() {
 			return true;
 		}
 	},
-	
+
+	/**
+	 * At least one enemy is diving
+	 */
 	DIVING {
 		@Override
 		public boolean playing() {
 			return true;
 		}
 	},
-	
+
 	/**
 	 * Between lives
 	 */
@@ -51,28 +60,28 @@ public enum GameState {
 		public boolean playing() {
 			return true;
 		}
-	}, 
-	
+	},
+
 	/**
 	 * Game over
 	 */
-	GAMEOVER, 
-	
+	GAMEOVER,
+
 	/**
 	 * Results screen
 	 */
-	RESULTS, 
-	
+	RESULTS,
+
 	/**
 	 * Postgame menu
 	 */
 	POSTGAME_MENU,
-	
+
 	/**
 	 * HighScore Screen
 	 */
 	ENTER_NAME,
-	
+
 	/**
 	 * HighScore Screen
 	 */

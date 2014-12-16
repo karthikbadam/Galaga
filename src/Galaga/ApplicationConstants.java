@@ -108,14 +108,23 @@ public interface ApplicationConstants {
 	float FORMATION_CYCLE_TIME = 2;
 
 	/**
-	 * Interval between enemy spawn
+	 * Time between enemy spawn
 	 */
 	float SPAWN_TIME = 0.1f;
 	
+	/**
+	 * Time between waves of entering enemies
+	 */
 	float WAVE_TIME = 2;
 
+	/**
+	 * Score at which enemies gain a life
+	 */
 	int NEW_LIFE_SCORE = 20000;
 
+	/**
+	 * Y coordinates of each row of enemies
+	 */
 	float[] ROW_Y = { BOSS_Y, BOSS_Y - ENEMY_BUFFER, BOSS_Y - 2 * ENEMY_BUFFER,
 			BOSS_Y - 3 * ENEMY_BUFFER, BOSS_Y - 4 * ENEMY_BUFFER };
 }

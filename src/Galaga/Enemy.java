@@ -110,6 +110,8 @@ public abstract class Enemy implements ApplicationConstants {
 	 *            x coordinate
 	 * @param y
 	 *            y coordinate
+	 * @param entryPath
+	 *            path to take on entry
 	 */
 	public Enemy(float x, float y, FlightPath entryPath) {
 		this.x = x;
@@ -152,6 +154,8 @@ public abstract class Enemy implements ApplicationConstants {
 	 *            starting x destination
 	 * @param goalY
 	 *            starting y destination
+	 * @param entryPath
+	 *            path to take on entry
 	 */
 	public Enemy(float x, float y, float goalX, float goalY,
 			FlightPath entryPath) {
@@ -195,6 +199,12 @@ public abstract class Enemy implements ApplicationConstants {
 	 *            starting x destination
 	 * @param goalY
 	 *            starting y destination
+	 * @param homeX
+	 *            x coordinate of home position
+	 * @param homeY
+	 *            y coordinate of home position
+	 * @param entryPath
+	 *            path to take on entry
 	 */
 	public Enemy(float x, float y, float goalX, float goalY, float homeX,
 			float homeY, FlightPath entryPath) {
@@ -392,6 +402,9 @@ public abstract class Enemy implements ApplicationConstants {
 		destroyed = true;
 	}
 
+	/**
+	 * Reset to starting state
+	 */
 	public void reset() {
 		destroyed = false;
 		hit = false;
@@ -399,6 +412,8 @@ public abstract class Enemy implements ApplicationConstants {
 
 		this.x = spawnX;
 		this.y = spawnY;
+		this.goalX = homeX;
+		this.goalY = homeY;
 		this.theta = 0;
 		this.vx = 0;
 		this.vy = 0;
@@ -411,11 +426,19 @@ public abstract class Enemy implements ApplicationConstants {
 		animationState = AnimationState.random();
 	}
 
+	/**
+	 * Start the attack cycle
+	 */
 	public void dive() {
 		state = EnemyState.DIVE;
 		createPath();
 	}
 
+	/**
+	 * Accessor method for enemy state
+	 * 
+	 * @return enemy state
+	 */
 	public EnemyState getState() {
 		return state;
 	}
@@ -485,6 +508,12 @@ public abstract class Enemy implements ApplicationConstants {
 		return score;
 	}
 
+	/**
+	 * Sync the enemy to the rest in formation
+	 * 
+	 * @param prototype
+	 *            enemy to sync with
+	 */
 	public void syncFormation(Enemy prototype) {
 		this.state = prototype.state;
 		float timeToGoal = Math.min(FORMATION_CYCLE_TIME - prototype.ut,
@@ -530,16 +559,29 @@ public abstract class Enemy implements ApplicationConstants {
 		goalReached = false;
 	}
 
+	/**
+	 * Get the waypoints for the entry path
+	 */
 	protected void createAssumePositionPath() {
 		waypoints = entryPath.getPoints(x, y, goalX, goalY);
 	}
 
+	/**
+	 * Get the waypoints for the dive path
+	 */
 	protected void createDivePath() {
 		goalX = Fighter.instance().getX();
 		goalY = Fighter.instance().getY();
 		waypoints = FlightPath.DIVE.getPoints(x, y, goalX, goalY);
 	}
 
+	/**
+	 * Get waypoints for the entry path, given the time it should take to reach
+	 * the goal
+	 * 
+	 * @param timeToGoal
+	 *            time it should take to reach the goal
+	 */
 	private void createFormationPath(float timeToGoal) {
 		ut = 0;
 
@@ -559,6 +601,10 @@ public abstract class Enemy implements ApplicationConstants {
 		goalReached = false;
 	}
 
+	/**
+	 * Follow the waypoints either linearly or through linear interpolation
+	 * depending on the game state
+	 */
 	private void followPath() {
 
 		switch (state) {
@@ -579,6 +625,9 @@ public abstract class Enemy implements ApplicationConstants {
 		}
 	}
 
+	/**
+	 * Follow the waypoints through linear interpolation
+	 */
 	private void followLinearPath() {
 		final int NB_WAY_PTS = waypoints.length;
 
@@ -616,7 +665,7 @@ public abstract class Enemy implements ApplicationConstants {
 	}
 
 	/**
-	 * Move according to the the cubic interpolation
+	 * Follow the waypoints through cubic interpolation
 	 */
 	private void followCubicPath() {
 		final int NB_WAY_PTS = waypoints.length;
@@ -821,7 +870,16 @@ public abstract class Enemy implements ApplicationConstants {
 		}
 	}
 
-	protected enum FlightPath {
+	/**
+	 * Enumeration to define different flight paths for enemies
+	 * 
+	 * @author Christopher Glasz
+	 */
+	public enum FlightPath {
+
+		/**
+		 * Flight path 1 has enemies crossing twice and assuming position
+		 */
 		DOUBLE_CROSS {
 			public float[][] getPoints(float x, float y, float goalX,
 					float goalY) {
@@ -831,6 +889,9 @@ public abstract class Enemy implements ApplicationConstants {
 			}
 		},
 
+		/**
+		 * Flight path 2 has enemies looping up from the bottom
+		 */
 		BOTTOM_LOOP {
 			public float[][] getPoints(float x, float y, float goalX,
 					float goalY) {
@@ -841,6 +902,9 @@ public abstract class Enemy implements ApplicationConstants {
 			}
 		},
 
+		/**
+		 * Flight path 3 has enemies looping down from the top
+		 */
 		TOP_LOOP {
 			public float[][] getPoints(float x, float y, float goalX,
 					float goalY) {
@@ -850,6 +914,9 @@ public abstract class Enemy implements ApplicationConstants {
 			}
 		},
 
+		/**
+		 * Flight path 4 defines the path enemies take when dive bombing
+		 */
 		DIVE {
 			public float[][] getPoints(float x, float y, float goalX,
 					float goalY) {
@@ -859,6 +926,19 @@ public abstract class Enemy implements ApplicationConstants {
 			}
 		};
 
+		/**
+		 * Return waypoints specific to the flight path
+		 * 
+		 * @param x
+		 *            initial x coordinate
+		 * @param y
+		 *            initial y coordinate
+		 * @param goalX
+		 *            final x coordinate
+		 * @param goalY
+		 *            final y coordinate
+		 * @return the waypoints for the flight path
+		 */
 		public float[][] getPoints(float x, float y, float goalX, float goalY) {
 			return new float[][] { { 0, 1 }, { 1, 0 } };
 		}

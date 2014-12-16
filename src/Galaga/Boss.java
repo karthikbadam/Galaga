@@ -1,6 +1,5 @@
 package Galaga;
 
-import Galaga.Enemy.EnemyState;
 import processing.core.*;
 
 /**
@@ -27,6 +26,8 @@ public class Boss extends Enemy {
 	 *            x coordinate
 	 * @param y
 	 *            y coordinate
+	 * @param entryPath
+	 *            path to take on entry
 	 */
 	public Boss(float x, float y, FlightPath entryPath) {
 		super(x, y, entryPath);
@@ -46,6 +47,8 @@ public class Boss extends Enemy {
 	 *            the starting destination
 	 * @param goalY
 	 *            the starting destination
+	 * @param entryPath
+	 *            path to take on entry
 	 */
 	public Boss(float x, float y, float goalX, float goalY, FlightPath entryPath) {
 		super(x, y, goalX, goalY, entryPath);

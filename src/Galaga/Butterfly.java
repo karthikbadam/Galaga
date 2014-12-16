@@ -1,8 +1,6 @@
 package Galaga;
 
-import Galaga.Enemy.FlightPath;
 import processing.core.PApplet;
-import processing.core.PConstants;
 
 /**
  * Defines a butterfly, the middle section of the Galaga formation
@@ -18,6 +16,8 @@ public class Butterfly extends Enemy {
 	 *            x coordinate
 	 * @param y
 	 *            y coordinate
+	 * @param entryPath
+	 *            path to take on entry
 	 */
 	public Butterfly(float x, float y, FlightPath entryPath) {
 		super(x, y, entryPath);
@@ -36,8 +36,11 @@ public class Butterfly extends Enemy {
 	 *            the starting destination
 	 * @param goalY
 	 *            the starting destination
+	 * @param entryPath
+	 *            path to take on entry
 	 */
-	public Butterfly(float x, float y, float goalX, float goalY, FlightPath entryPath) {
+	public Butterfly(float x, float y, float goalX, float goalY,
+			FlightPath entryPath) {
 		super(x, y, goalX, goalY, entryPath);
 		formationScore = 80;
 		attackingScore = 160;
@@ -47,7 +50,6 @@ public class Butterfly extends Enemy {
 	public void update(float elapsed) {
 		super.update(elapsed);
 	}
-
 
 	@Override
 	public Enemy clone() {

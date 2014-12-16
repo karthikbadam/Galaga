@@ -71,7 +71,7 @@ public class Fighter implements ApplicationConstants {
 	 * Number of lives that the fighter has left
 	 */
 	private int lives;
-	
+
 	/**
 	 * Fetch the one instance of the fighter. If the instance does not exist,
 	 * create it.
@@ -236,13 +236,14 @@ public class Fighter implements ApplicationConstants {
 	public int lives() {
 		return lives;
 	}
-	
+
 	/**
 	 * Adds a life to this fighter
 	 */
-	public void addLife(){
-		lives+=1;
+	public void addLife() {
+		lives += 1;
 	}
+
 	/**
 	 * Accessor method for number of bullets fired
 	 * 
@@ -251,11 +252,21 @@ public class Fighter implements ApplicationConstants {
 	public int fired() {
 		return fired;
 	}
-	
+
+	/**
+	 * Accessor method for x coordinate
+	 * 
+	 * @return x coordinate
+	 */
 	public float getX() {
 		return x;
 	}
-	
+
+	/**
+	 * Accessor method for y coordinate
+	 * 
+	 * @return y coordinate
+	 */
 	public float getY() {
 		return y;
 	}

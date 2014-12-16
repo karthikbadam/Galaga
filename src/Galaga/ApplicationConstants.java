@@ -58,21 +58,6 @@ public interface ApplicationConstants {
 	float ENEMY_BUFFER = PIXEL_WIDTH * 15;
 
 	/**
-	 * Number of bosses in formation
-	 */
-	int NUM_BOSSES = 4;
-
-	/**
-	 * Number of butterflies in formation
-	 */
-	int NUM_BUTTERFLIES = 8;
-
-	/**
-	 * Numebr of bees in formation
-	 */
-	int NUM_BEES = 10;
-
-	/**
 	 * Time it takes to strafe from one side of the screen to the other
 	 */
 	float CROSS_WORLD_TIME = 2;
@@ -125,7 +110,12 @@ public interface ApplicationConstants {
 	/**
 	 * Interval between enemy spawn
 	 */
-	float SPAWN_TIME = 0.2f;
+	float SPAWN_TIME = 0.1f;
 	
+	float WAVE_TIME = 2;
+
 	int NEW_LIFE_SCORE = 20000;
+
+	float[] ROW_Y = { BOSS_Y, BOSS_Y - ENEMY_BUFFER, BOSS_Y - 2 * ENEMY_BUFFER,
+			BOSS_Y - 3 * ENEMY_BUFFER, BOSS_Y - 4 * ENEMY_BUFFER };
 }

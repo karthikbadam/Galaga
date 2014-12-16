@@ -41,6 +41,8 @@ public abstract class Enemy implements ApplicationConstants {
 
 	protected float spawnX, spawnY;
 
+	protected FlightPath entryPath;
+
 	/**
 	 * Boolean to keep track of whether the goal has been reached
 	 */
@@ -109,7 +111,7 @@ public abstract class Enemy implements ApplicationConstants {
 	 * @param y
 	 *            y coordinate
 	 */
-	public Enemy(float x, float y) {
+	public Enemy(float x, float y, FlightPath entryPath) {
 		this.x = x;
 		this.y = y;
 		this.goalX = x;
@@ -125,6 +127,7 @@ public abstract class Enemy implements ApplicationConstants {
 
 		state = EnemyState.ASSUME_POSITION;
 
+		this.entryPath = entryPath;
 		createPath();
 		followCubicPath();
 
@@ -150,7 +153,8 @@ public abstract class Enemy implements ApplicationConstants {
 	 * @param goalY
 	 *            starting y destination
 	 */
-	public Enemy(float x, float y, float goalX, float goalY) {
+	public Enemy(float x, float y, float goalX, float goalY,
+			FlightPath entryPath) {
 		this.x = x;
 		this.y = y;
 		this.goalX = goalX;
@@ -166,6 +170,7 @@ public abstract class Enemy implements ApplicationConstants {
 
 		state = EnemyState.ASSUME_POSITION;
 
+		this.entryPath = entryPath;
 		createPath();
 		followCubicPath();
 
@@ -192,7 +197,7 @@ public abstract class Enemy implements ApplicationConstants {
 	 *            starting y destination
 	 */
 	public Enemy(float x, float y, float goalX, float goalY, float homeX,
-			float homeY) {
+			float homeY, FlightPath entryPath) {
 		this.x = x;
 		this.y = y;
 		this.goalX = goalX;
@@ -208,6 +213,7 @@ public abstract class Enemy implements ApplicationConstants {
 
 		state = EnemyState.ASSUME_POSITION;
 
+		this.entryPath = entryPath;
 		createPath();
 		followCubicPath();
 
@@ -386,7 +392,7 @@ public abstract class Enemy implements ApplicationConstants {
 		destroyed = true;
 	}
 
-	public void revive() {
+	public void reset() {
 		destroyed = false;
 		hit = false;
 		scored = false;
@@ -525,54 +531,13 @@ public abstract class Enemy implements ApplicationConstants {
 	}
 
 	protected void createAssumePositionPath() {
-		goalX = homeX;
-		goalY = homeY;
-
-		waypoints = new float[10][3];
-
-		float loopEntryTime = 2;
-		float loopExitTime = 2;
-		float formationTime = 1;
-
-		float radius = 0.1f;
-		float cx = 0;
-		float cy = WORLD_HEIGHT / 2;
-
-		waypoints[0][0] = x;
-		waypoints[0][1] = y;
-		waypoints[0][2] = 0;
-
-		waypoints[1][0] = (cx + x) / 2;
-		waypoints[1][1] = (cy + y + radius) / 2;
-		waypoints[1][2] = loopEntryTime / 2;
-
-		for (int i = 2; i < waypoints.length - 2; i++) {
-			float phi = PConstants.PI / 2 + PConstants.TWO_PI * (i - 2)
-					/ (waypoints.length - 4);
-			waypoints[i][0] = cx + radius * PApplet.cos(phi);
-			waypoints[i][1] = cy + radius * PApplet.sin(phi);
-			waypoints[i][2] = loopEntryTime + loopExitTime * (i - 2)
-					/ (waypoints.length - 4);
-		}
-
-		waypoints[waypoints.length - 2][0] = (cx + goalX) / 2;
-		waypoints[waypoints.length - 2][1] = (cy + goalY + radius) / 2;
-		waypoints[waypoints.length - 2][2] = loopEntryTime + loopExitTime
-				+ formationTime / 2;
-
-		waypoints[waypoints.length - 1][0] = goalX;
-		waypoints[waypoints.length - 1][1] = goalY;
-		waypoints[waypoints.length - 1][2] = loopEntryTime + loopExitTime
-				+ formationTime;
+		waypoints = entryPath.getPoints(x, y, goalX, goalY);
 	}
 
 	protected void createDivePath() {
 		goalX = Fighter.instance().getX();
 		goalY = Fighter.instance().getY();
-		float[][] newpoints2 = { { x, y, 0 }, { x + 0.05f, y + 0.05f, 1 },
-				{ goalX, goalY, 3 }, { x, y, 4 } };
-		waypoints = newpoints2;
-
+		waypoints = FlightPath.DIVE.getPoints(x, y, goalX, goalY);
 	}
 
 	private void createFormationPath(float timeToGoal) {
@@ -853,6 +818,49 @@ public abstract class Enemy implements ApplicationConstants {
 		 */
 		public boolean inFormation() {
 			return false;
+		}
+	}
+
+	protected enum FlightPath {
+		DOUBLE_CROSS {
+			public float[][] getPoints(float x, float y, float goalX,
+					float goalY) {
+				return new float[][] { { x, y, 0 }, { 0, WORLD_HEIGHT / 2, 1 },
+						{ -x, WORLD_HEIGHT / 3, 1.5f },
+						{ -x, WORLD_HEIGHT / 2, 2 }, { goalX, goalY, 3 } };
+			}
+		},
+
+		BOTTOM_LOOP {
+			public float[][] getPoints(float x, float y, float goalX,
+					float goalY) {
+				return new float[][] { { x, y, 0 },
+						{ x / 10, WORLD_HEIGHT / 3, 1 },
+						{ x / 6, 2 * WORLD_HEIGHT / 3, 1.5f },
+						{ x / 7, WORLD_HEIGHT / 3, 2 }, { goalX, goalY, 3 } };
+			}
+		},
+
+		TOP_LOOP {
+			public float[][] getPoints(float x, float y, float goalX,
+					float goalY) {
+				return new float[][] { { x, y, 0 },
+						{ x / 2, WORLD_HEIGHT / 3, 1 },
+						{ 0, WORLD_HEIGHT / 3, 1.5f }, { goalX, goalY, 2 } };
+			}
+		},
+
+		DIVE {
+			public float[][] getPoints(float x, float y, float goalX,
+					float goalY) {
+				return new float[][] { { x, y, 0 },
+						{ x + 0.05f, y + 0.05f, 0.5f }, { goalX, goalY, 2 },
+						{ goalX, 0, 3 }, { x, y, 4 } };
+			}
+		};
+
+		public float[][] getPoints(float x, float y, float goalX, float goalY) {
+			return new float[][] { { 0, 1 }, { 1, 0 } };
 		}
 	}
 }

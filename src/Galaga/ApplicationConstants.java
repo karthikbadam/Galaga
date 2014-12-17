@@ -68,12 +68,12 @@ public interface ApplicationConstants {
 	float STRAFE_SPEED = WORLD_WIDTH / CROSS_WORLD_TIME;
 
 	/**
-	 * Time it takes a bullet to travel from the top of the screen to the bottom
+	 * Time it takes a missile to travel from the top of the screen to the bottom
 	 */
 	float DOWN_WORLD_TIME = 1;
 
 	/**
-	 * Speed of the bullets
+	 * Speed of the missiles
 	 */
 	float BULLET_SPEED = WORLD_HEIGHT / DOWN_WORLD_TIME;
 

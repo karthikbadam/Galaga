@@ -63,7 +63,7 @@ public class Fighter implements ApplicationConstants {
 	private boolean hit;
 
 	/**
-	 * Number of bullets that the fighter has fired
+	 * Number of missiles that the fighter has fired
 	 */
 	private int fired;
 
@@ -152,23 +152,23 @@ public class Fighter implements ApplicationConstants {
 
 	/**
 	 * Detects if there is a collision between the fighter and the passed
-	 * bullet. If there is, the fighter is hit, the bullet destroyed, and the
+	 * missile. If there is, the fighter is hit, the missile destroyed, and the
 	 * method returns true. If not, the method only returns false
 	 * 
-	 * @param bullet
-	 *            the bullet to check against
-	 * @return true if there is a collision between the enemy and the bullet
+	 * @param missile
+	 *            the missile to check against
+	 * @return true if there is a collision between the enemy and the missile
 	 */
-	public boolean detectCollision(Bullet bullet) {
+	public boolean detectCollision(Missile missile) {
 		boolean h = false;
-		float bx = bullet.getX();
-		float by = bullet.getY();
+		float bx = missile.getX();
+		float by = missile.getY();
 
 		float dist2 = (bx - x) * (bx - x) + (by - y) * (by - y);
 		if (dist2 < r * r) {
 			h = true;
 			hit();
-			bullet.destroy();
+			missile.destroy();
 		}
 
 		return h;
@@ -245,7 +245,7 @@ public class Fighter implements ApplicationConstants {
 	}
 
 	/**
-	 * Accessor method for number of bullets fired
+	 * Accessor method for number of missiles fired
 	 * 
 	 * @return fired
 	 */
@@ -312,13 +312,13 @@ public class Fighter implements ApplicationConstants {
 	}
 
 	/**
-	 * Return a bullet shot from the fighter
+	 * Return a missile shot from the fighter
 	 * 
-	 * @return bullet shot from the fighter
+	 * @return missile shot from the fighter
 	 */
-	public Bullet shoot() {
+	public Missile shoot() {
 		fired++;
-		return new FighterBullet(x, y);
+		return new FighterMissile(x, y);
 	}
 
 	/**

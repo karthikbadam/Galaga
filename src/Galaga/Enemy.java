@@ -37,10 +37,19 @@ public abstract class Enemy implements ApplicationConstants {
 	 */
 	protected float goalX, goalY;
 
+	/**
+	 * Home coordinates
+	 */
 	protected float homeX, homeY;
 
+	/**
+	 * Spawn coordinates
+	 */
 	protected float spawnX, spawnY;
 
+	/**
+	 * Path to take upon entry
+	 */
 	protected FlightPath entryPath;
 
 	/**
@@ -347,24 +356,24 @@ public abstract class Enemy implements ApplicationConstants {
 	}
 
 	/**
-	 * Detects if the passed in bullet is colliding with the enemy. If it is,
-	 * the enemy is hit, the bullet is destroyed, and the method returns true.
+	 * Detects if the passed in missile is colliding with the enemy. If it is,
+	 * the enemy is hit, the missile is destroyed, and the method returns true.
 	 * Otherwise, it returns false
 	 * 
-	 * @param bullet
-	 *            the bullet to check collision with
-	 * @return true if the bullet and enemy are colliding
+	 * @param missile
+	 *            the missile to check collision with
+	 * @return true if the missile and enemy are colliding
 	 */
-	public boolean detectCollision(Bullet bullet) {
+	public boolean detectCollision(Missile missile) {
 		boolean h = false;
-		float bx = bullet.getX();
-		float by = bullet.getY();
+		float bx = missile.getX();
+		float by = missile.getY();
 
 		float dist2 = (bx - x) * (bx - x) + (by - y) * (by - y);
 		if (dist2 < r * r) {
 			h = true;
 			hit();
-			bullet.destroy();
+			missile.destroy();
 		}
 		return h;
 	}
@@ -444,18 +453,18 @@ public abstract class Enemy implements ApplicationConstants {
 	}
 
 	/**
-	 * Return a bullet shot from the fighter
+	 * Return a missile shot from the fighter
 	 * 
-	 * @return bullet shot from the fighter
+	 * @return missile shot from the fighter
 	 */
-	public Bullet shoot() {
+	public Missile shoot() {
 		float phi = theta;
 		if (state.inFormation())
 			phi -= PConstants.PI / 2;
 		else
 			phi += PConstants.PI / 2;
 
-		return new EnemyBullet(x, y, phi);
+		return new EnemyMissile(x, y, phi);
 	}
 
 	/**
@@ -846,18 +855,35 @@ public abstract class Enemy implements ApplicationConstants {
 	 * @author Christopher Glasz
 	 */
 	protected enum EnemyState {
-		ASSUME_POSITION, FORMATION_IN {
+		
+		/**
+		 * Assuming position in formation
+		 */
+		ASSUME_POSITION, 
+		
+		/**
+		 * In formation and moving outward
+		 */
+		FORMATION_IN {
 			@Override
 			public boolean inFormation() {
 				return true;
 			}
 		},
+		
+		/**
+		 * In formation and moving inward
+		 */
 		FORMATION_OUT {
 			@Override
 			public boolean inFormation() {
 				return true;
 			}
 		},
+		
+		/**
+		 * Dive bombing
+		 */
 		DIVE;
 
 		/**

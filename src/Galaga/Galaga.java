@@ -12,9 +12,9 @@ import processing.core.*;
  * A Processing implementation of GALAGA, the classic 80's arcade game. The
  * objective of GALAGA is to destroy all the enemies on the screen by shooting
  * them from a ship on the bottom. The user can strafe the ship left and right,
- * and shoot bullets directly upward.
+ * and shoot missiles directly upward.
  * 
- * @author Christopher Glasz
+ * @author Christopher Glasz & James Collins
  */
 public class Galaga extends PApplet implements ApplicationConstants {
 
@@ -44,14 +44,14 @@ public class Galaga extends PApplet implements ApplicationConstants {
 	private static ArrayList<Enemy> enemies;
 
 	/**
-	 * Array list of bullets shot my enemies
+	 * Array list of missiles shot my enemies
 	 */
-	private static ArrayList<Bullet> enemyBullets;
+	private static ArrayList<Missile> enemyMissiles;
 
 	/**
-	 * Array list of bullets shot by fighter
+	 * Array list of missiles shot by fighter
 	 */
-	private static ArrayList<Bullet> fighterBullets;
+	private static ArrayList<Missile> fighterMissiles;
 
 	/**
 	 * Number of stars to be drawn
@@ -112,6 +112,9 @@ public class Galaga extends PApplet implements ApplicationConstants {
 	 */
 	private static int topScore;
 
+	/**
+	 * The name entry scanner thing
+	 */
 	private static NameEntry nameEntry;
 
 	/**
@@ -124,6 +127,9 @@ public class Galaga extends PApplet implements ApplicationConstants {
 	 */
 	private static int newLifeScore;
 
+	/**
+	 * Current level
+	 */
 	private static int level;
 
 	/**
@@ -141,6 +147,9 @@ public class Galaga extends PApplet implements ApplicationConstants {
 	 */
 	private static Timer nextEnemyTimer;
 
+	/** 
+	 * Counter to keep track of the number of enemies per wave
+	 */
 	private int waveCounter;
 
 	/**
@@ -158,10 +167,11 @@ public class Galaga extends PApplet implements ApplicationConstants {
 		// Create the player ship
 		fighter = Fighter.instance();
 
-		// Somewhere to put bullets
-		fighterBullets = new ArrayList<Bullet>();
-		enemyBullets = new ArrayList<Bullet>();
+		// Somewhere to put missiles
+		fighterMissiles = new ArrayList<Missile>();
+		enemyMissiles = new ArrayList<Missile>();
 
+		// Populate the prototype to load into the onDeck
 		populatePrototype();
 
 		// Array list to hold enemies
@@ -274,12 +284,12 @@ public class Galaga extends PApplet implements ApplicationConstants {
 			// Move the player ship
 			fighter.update(elapsed);
 
-			// Move the bullets fired by the fighter
-			for (Bullet b : fighterBullets)
+			// Move the missiles fired by the fighter
+			for (Missile b : fighterMissiles)
 				b.update(elapsed);
 
-			// Move the bullets fired by the enemies
-			for (Bullet b : enemyBullets)
+			// Move the missiles fired by the enemies
+			for (Missile b : enemyMissiles)
 				b.update(elapsed);
 
 			if (!onDeck.isEmpty() && nextEnemyTimer.isDone()) {
@@ -300,12 +310,12 @@ public class Galaga extends PApplet implements ApplicationConstants {
 			// Check to see if enemies have been hit
 			for (Enemy e : enemies)
 				if (!e.isHit())
-					for (Bullet b : fighterBullets)
+					for (Missile b : fighterMissiles)
 						if (e.detectCollision(b))
 							hits++;
 
 			// Check to see if the player has been hit
-			for (Bullet b : enemyBullets)
+			for (Missile b : enemyMissiles)
 				if (!fighter.isHit())
 					fighter.detectCollision(b);
 
@@ -324,12 +334,12 @@ public class Galaga extends PApplet implements ApplicationConstants {
 			// Move the player ship
 			fighter.update(elapsed);
 
-			// Move the bullets fired by the fighter
-			for (Bullet b : fighterBullets)
+			// Move the missiles fired by the fighter
+			for (Missile b : fighterMissiles)
 				b.update(elapsed);
 
-			// Move the bullets fired by the enemies
-			for (Bullet b : enemyBullets)
+			// Move the missiles fired by the enemies
+			for (Missile b : enemyMissiles)
 				b.update(elapsed);
 
 			if (!onDeck.isEmpty() && nextEnemyTimer.isDone()) {
@@ -341,7 +351,7 @@ public class Galaga extends PApplet implements ApplicationConstants {
 			for (Enemy e : enemies)
 				e.update(elapsed);
 
-			// Have enemies fire bullets every once in a while
+			// Have enemies fire missiles every once in a while
 			for (Enemy e : enemies)
 				if (random(1) < 0.05f)
 					e.dive();
@@ -349,12 +359,12 @@ public class Galaga extends PApplet implements ApplicationConstants {
 			// Check to see if enemies have been hit
 			for (Enemy e : enemies)
 				if (!e.isHit())
-					for (Bullet b : fighterBullets)
+					for (Missile b : fighterMissiles)
 						if (e.detectCollision(b))
 							hits++;
 
 			// Check to see if the player has been hit
-			for (Bullet b : enemyBullets)
+			for (Missile b : enemyMissiles)
 				if (!fighter.isHit())
 					fighter.detectCollision(b);
 
@@ -373,12 +383,12 @@ public class Galaga extends PApplet implements ApplicationConstants {
 			// Move the player ship
 			fighter.update(elapsed);
 
-			// Move the bullets fired by the fighter
-			for (Bullet b : fighterBullets)
+			// Move the missiles fired by the fighter
+			for (Missile b : fighterMissiles)
 				b.update(elapsed);
 
-			// Move the bullets fired by the enemies
-			for (Bullet b : enemyBullets)
+			// Move the missiles fired by the enemies
+			for (Missile b : enemyMissiles)
 				b.update(elapsed);
 
 			if (!onDeck.isEmpty() && nextEnemyTimer.isDone()) {
@@ -390,21 +400,21 @@ public class Galaga extends PApplet implements ApplicationConstants {
 			for (Enemy e : enemies)
 				e.update(elapsed);
 
-			// Have enemies fire bullets every once in a while
+			// Have enemies fire missiles every once in a while
 			for (Enemy e : enemies)
 				if (e.getState() == Enemy.EnemyState.DIVE)
 					if (random(1) < 0.05f)
-						enemyBullets.add(e.shoot());
+						enemyMissiles.add(e.shoot());
 
 			// Check to see if enemies have been hit
 			for (Enemy e : enemies)
 				if (!e.isHit())
-					for (Bullet b : fighterBullets)
+					for (Missile b : fighterMissiles)
 						if (e.detectCollision(b))
 							hits++;
 
 			// Check to see if the player has been hit
-			for (Bullet b : enemyBullets)
+			for (Missile b : enemyMissiles)
 				if (!fighter.isHit())
 					fighter.detectCollision(b);
 
@@ -428,12 +438,12 @@ public class Galaga extends PApplet implements ApplicationConstants {
 
 		case READY:
 
-			// Move the bullets fired by the fighter
-			for (Bullet b : fighterBullets)
+			// Move the missiles fired by the fighter
+			for (Missile b : fighterMissiles)
 				b.update(elapsed);
 
-			// Move the bullets fired by the enemies
-			for (Bullet b : enemyBullets)
+			// Move the missiles fired by the enemies
+			for (Missile b : enemyMissiles)
 				b.update(elapsed);
 
 			// Move the enemies
@@ -443,7 +453,7 @@ public class Galaga extends PApplet implements ApplicationConstants {
 			// Check to see if enemies have been hit
 			for (Enemy e : enemies)
 				if (!e.isHit())
-					for (Bullet b : fighterBullets)
+					for (Missile b : fighterMissiles)
 						if (e.detectCollision(b))
 							hits++;
 
@@ -458,12 +468,12 @@ public class Galaga extends PApplet implements ApplicationConstants {
 
 			break;
 
-		// After the player is out of lives, only update enemies and bullets
+		// After the player is out of lives, only update enemies and missiles
 		case GAMEOVER:
-			for (Bullet b : fighterBullets)
+			for (Missile b : fighterMissiles)
 				b.update(elapsed);
 
-			for (Bullet b : enemyBullets)
+			for (Missile b : enemyMissiles)
 				b.update(elapsed);
 
 			for (Enemy e : enemies)
@@ -520,18 +530,18 @@ public class Galaga extends PApplet implements ApplicationConstants {
 	}
 
 	/**
-	 * Remove destroyed enemies and bullets
+	 * Remove destroyed enemies and missiles
 	 */
 	public void purge() {
 
-		// Get rid of bullets once they're outside the window
-		Iterator<Bullet> bit = fighterBullets.iterator();
+		// Get rid of missiles once they're outside the window
+		Iterator<Missile> bit = fighterMissiles.iterator();
 		while (bit.hasNext())
 			if (bit.next().isDestroyed())
 				bit.remove();
 
-		// Get rid of bullets once they're outside the window
-		bit = enemyBullets.iterator();
+		// Get rid of missiles once they're outside the window
+		bit = enemyMissiles.iterator();
 		while (bit.hasNext())
 			if (bit.next().isDestroyed())
 				bit.remove();
@@ -683,15 +693,15 @@ public class Galaga extends PApplet implements ApplicationConstants {
 			popMatrix();
 			break;
 
-		// Draw all bullets, enemies, the fighter, the score, all that jazz
+		// Draw all missiles, enemies, the fighter, the score, all that jazz
 		case ASSUMING_POSITIONS:
 		case IN_FORMATION:
 		case DIVING:
 			pushMatrix();
 			fighter.render(this);
-			for (Bullet b : fighterBullets)
+			for (Missile b : fighterMissiles)
 				b.render(this);
-			for (Bullet b : enemyBullets)
+			for (Missile b : enemyMissiles)
 				b.render(this);
 			for (Enemy e : enemies)
 				e.render(this);
@@ -706,9 +716,9 @@ public class Galaga extends PApplet implements ApplicationConstants {
 		case NEXT_LEVEL:
 			pushMatrix();
 			fighter.render(this);
-			for (Bullet b : fighterBullets)
+			for (Missile b : fighterMissiles)
 				b.render(this);
-			for (Bullet b : enemyBullets)
+			for (Missile b : enemyMissiles)
 				b.render(this);
 			for (Enemy e : enemies)
 				e.render(this);
@@ -733,9 +743,9 @@ public class Galaga extends PApplet implements ApplicationConstants {
 		case READY:
 			pushMatrix();
 			fighter.render(this);
-			for (Bullet b : fighterBullets)
+			for (Missile b : fighterMissiles)
 				b.render(this);
-			for (Bullet b : enemyBullets)
+			for (Missile b : enemyMissiles)
 				b.render(this);
 			for (Enemy e : enemies)
 				e.render(this);
@@ -756,12 +766,12 @@ public class Galaga extends PApplet implements ApplicationConstants {
 			popMatrix();
 			break;
 
-		// Only draw bullets and enemies, as well as 'GAME OVER'
+		// Only draw missiles and enemies, as well as 'GAME OVER'
 		case GAMEOVER:
 			pushMatrix();
-			for (Bullet b : fighterBullets)
+			for (Missile b : fighterMissiles)
 				b.render(this);
-			for (Bullet b : enemyBullets)
+			for (Missile b : enemyMissiles)
 				b.render(this);
 			for (Enemy e : enemies)
 				e.render(this);
@@ -1053,8 +1063,8 @@ public class Galaga extends PApplet implements ApplicationConstants {
 			} else {
 				switch (key) {
 				case ' ':
-					if (!fighter.isHit() && fighterBullets.size() < 2)
-						fighterBullets.add(fighter.shoot());
+					if (!fighter.isHit() && fighterMissiles.size() < 2)
+						fighterMissiles.add(fighter.shoot());
 					break;
 				}
 			}
@@ -1473,8 +1483,8 @@ public class Galaga extends PApplet implements ApplicationConstants {
 			fighter = Fighter.instance();
 			nameEntry = new NameEntry();
 
-			fighterBullets = new ArrayList<Bullet>();
-			enemyBullets = new ArrayList<Bullet>();
+			fighterMissiles = new ArrayList<Missile>();
+			enemyMissiles = new ArrayList<Missile>();
 			enemies = new ArrayList<Enemy>();
 
 			// Array list to hold enemies

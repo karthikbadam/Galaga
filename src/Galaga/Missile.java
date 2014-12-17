@@ -3,22 +3,25 @@ package Galaga;
 import processing.core.*;
 
 /**
- * Defines a bullet
+ * Defines a missile
  * 
  * @author Christopher Glasz
  */
-public abstract class Bullet implements ApplicationConstants {
+public abstract class Missile implements ApplicationConstants {
 
 	/**
-	 * X velocity of the bullet
+	 * X velocity of the missile
 	 */
 	protected float vx, vy;
 
 	/**
-	 * Coordinates of the bullet
+	 * Coordinates of the missile
 	 */
 	protected float x, y;
 	
+	/**
+	 * Angle of attack
+	 */
 	protected float theta;
 
 	/**
@@ -27,7 +30,7 @@ public abstract class Bullet implements ApplicationConstants {
 	protected PImage sprite;
 
 	/**
-	 * Boolean to keep track of whether the bullet is destroyed
+	 * Boolean to keep track of whether the missile is destroyed
 	 */
 	private boolean destroyed;
 
@@ -35,11 +38,11 @@ public abstract class Bullet implements ApplicationConstants {
 	 * COnstructor initializes variables
 	 * 
 	 * @param x
-	 *            initial x-coordinate of the bullet
+	 *            initial x-coordinate of the missile
 	 * @param y
-	 *            initial y-coordinate of the bullet
+	 *            initial y-coordinate of the missile
 	 */
-	public Bullet(float x, float y) {
+	public Missile(float x, float y) {
 		this.x = x;
 		this.y = y;
 		this.theta = 0;
@@ -48,7 +51,7 @@ public abstract class Bullet implements ApplicationConstants {
 	}
 
 	/**
-	 * Update position of bullet
+	 * Update position of missile
 	 * 
 	 * @param elapsed
 	 *            time since last draw
@@ -62,7 +65,7 @@ public abstract class Bullet implements ApplicationConstants {
 	}
 
 	/**
-	 * Draws the bullet to the passed PApplet
+	 * Draws the missile to the passed PApplet
 	 * 
 	 * @param g
 	 *            PApplet to draw to
@@ -81,41 +84,41 @@ public abstract class Bullet implements ApplicationConstants {
 	}
 
 	/**
-	 * Destroy the bullet
+	 * Destroy the missile
 	 */
 	public void destroy() {
 		destroyed = true;
 	}
 
 	/**
-	 * Returns true if the bullet is destroyed
+	 * Returns true if the missile is destroyed
 	 * 
-	 * @return true if the bullet is destroyed
+	 * @return true if the missile is destroyed
 	 */
 	public boolean isDestroyed() {
 		return destroyed;
 	}
 
 	/**
-	 * Accessor method for the x coordinate of the bullet
+	 * Accessor method for the x coordinate of the missile
 	 * 
-	 * @return the x coordinate of the bullet
+	 * @return the x coordinate of the missile
 	 */
 	public float getX() {
 		return x;
 	}
 
 	/**
-	 * Accessor method for the y coordinate of the bullet
+	 * Accessor method for the y coordinate of the missile
 	 * 
-	 * @return the y coordinate of the bullet
+	 * @return the y coordinate of the missile
 	 */
 	public float getY() {
 		return y;
 	}
 
 	/**
-	 * Loads the sprite for the bullet
+	 * Loads the sprite for the missile
 	 */
 	protected abstract void createSprite();
 }

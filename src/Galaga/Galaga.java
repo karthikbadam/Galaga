@@ -14,7 +14,7 @@ import processing.core.*;
  * them from a ship on the bottom. The user can strafe the ship left and right,
  * and shoot bullets directly upward.
  * 
- * @author Christopher Glasz
+ * @author Christopher Glasz & James Collins
  */
 public class Galaga extends PApplet implements ApplicationConstants {
 
@@ -112,6 +112,9 @@ public class Galaga extends PApplet implements ApplicationConstants {
 	 */
 	private static int topScore;
 
+	/**
+	 * The name entry scanner thing
+	 */
 	private static NameEntry nameEntry;
 
 	/**
@@ -124,6 +127,9 @@ public class Galaga extends PApplet implements ApplicationConstants {
 	 */
 	private static int newLifeScore;
 
+	/**
+	 * Current level
+	 */
 	private static int level;
 
 	/**
@@ -141,6 +147,9 @@ public class Galaga extends PApplet implements ApplicationConstants {
 	 */
 	private static Timer nextEnemyTimer;
 
+	/** 
+	 * Counter to keep track of the number of enemies per wave
+	 */
 	private int waveCounter;
 
 	/**
@@ -162,6 +171,7 @@ public class Galaga extends PApplet implements ApplicationConstants {
 		fighterBullets = new ArrayList<Bullet>();
 		enemyBullets = new ArrayList<Bullet>();
 
+		// Populate the prototype to load into the onDeck
 		populatePrototype();
 
 		// Array list to hold enemies

@@ -1,7 +1,13 @@
+<<<<<<< HEAD
+=======
 
 src/Galaga/Galaga.java
 
 bin/Galaga/Galaga.class
 *.class
+<<<<<<< HEAD
+>>>>>>> FETCH_HEAD
+=======
 *.class
 *.class
+>>>>>>> develop

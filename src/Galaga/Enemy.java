@@ -37,10 +37,19 @@ public abstract class Enemy implements ApplicationConstants {
 	 */
 	protected float goalX, goalY;
 
+	/**
+	 * Home coordinates
+	 */
 	protected float homeX, homeY;
 
+	/**
+	 * Spawn coordinates
+	 */
 	protected float spawnX, spawnY;
 
+	/**
+	 * Path to take upon entry
+	 */
 	protected FlightPath entryPath;
 
 	/**
@@ -846,18 +855,35 @@ public abstract class Enemy implements ApplicationConstants {
 	 * @author Christopher Glasz
 	 */
 	protected enum EnemyState {
-		ASSUME_POSITION, FORMATION_IN {
+		
+		/**
+		 * Assuming position in formation
+		 */
+		ASSUME_POSITION, 
+		
+		/**
+		 * In formation and moving outward
+		 */
+		FORMATION_IN {
 			@Override
 			public boolean inFormation() {
 				return true;
 			}
 		},
+		
+		/**
+		 * In formation and moving inward
+		 */
 		FORMATION_OUT {
 			@Override
 			public boolean inFormation() {
 				return true;
 			}
 		},
+		
+		/**
+		 * Dive bombing
+		 */
 		DIVE;
 
 		/**
